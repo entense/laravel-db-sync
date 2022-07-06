@@ -1,5 +1,5 @@
 {
-    "name": "dcblogdev/laravel-db-sync",
+    "name": "entense/laravel-db-sync",
     "description": "Sync database down.",
     "type": "library",
     "authors": [
