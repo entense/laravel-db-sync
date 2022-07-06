@@ -68,7 +68,6 @@ class DbSyncCommand extends Command
             }
 
             if ($importSqlFile === true) {
-
                 exec("mysql --user={$connect['local']['username']} --password={$connect['local']['password']} --host={$connect['local']['host']} --database {$connect['local']['database']} < $sql");
             }
 
