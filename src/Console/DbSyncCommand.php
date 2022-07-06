@@ -4,6 +4,7 @@ namespace Dcblogdev\DbSync\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class DbSyncCommand extends Command
 {
@@ -19,14 +20,28 @@ class DbSyncCommand extends Command
             return true;
         }
 
-        $host        = config('dbsync.host');
+
         $useSsh      = config('dbsync.useSsh');
         $sshUsername = config('dbsync.sshUsername');
         $sshPort     = config('dbsync.sshPort');
 
-        $username              = config('dbsync.username');
-        $database              = config('dbsync.database');
-        $password              = config('dbsync.password');
+        $connect = [
+            'sync' => [
+                'host' => config('dbsync.host'),
+                'username' => config('dbsync.username'),
+                'database' => config('dbsync.database'),
+                'password' => config('dbsync.password'),
+
+            ],
+            'local' => [
+                'host' => config('database.connections.mysql.host'),
+                'username' => config('database.connections.mysql.username'),
+                'database' => config('database.connections.mysql.database'),
+                'password' => config('database.connections.mysql.password')
+
+            ]
+        ];
+
         $ignore                = config('dbsync.ignore');
         $ignoreTables          = explode(',', $ignore);
         $importSqlFile         = config('dbsync.importSqlFile');
@@ -37,23 +52,24 @@ class DbSyncCommand extends Command
             return true;
         }
 
+        $sql = base_path('file.sql');
+
         if ($inTest === false) {
 
             $ignoreString = null;
             foreach ($ignoreTables as $name) {
-                $ignoreString .= " --ignore-table=$database.$name";
+                $ignoreString .= " --ignore-table={$connect['sync']['database']}.$name";
             }
 
             if ($useSsh === true) {
-                exec("ssh $sshUsername@$host -p$sshPort mysqldump -u $username -p$password $database $ignoreString > file.sql", $output);
+                exec("ssh $sshUsername@{$connect['sync']['host']} -p$sshPort mysqldump -u {$connect['sync']['username']} -p{$connect['sync']['password']} {$connect['sync']['database']} $ignoreString > file.sql", $output);
             } else {
-                exec("mysqldump -h$host -u $username -p$password $database $ignoreString --column-statistics=0 > file.sql", $output);
+                exec("mysqldump -h{$connect['sync']['host']} -u {$connect['sync']['username']} -p{$connect['sync']['password']} {$connect['sync']['database']} $ignoreString > file.sql", $output);
             }
 
-            $this->comment(implode(PHP_EOL, $output));
-
             if ($importSqlFile === true) {
-                DB::unprepared(file_get_contents(base_path('file.sql')));
+
+                exec("mysql --user={$connect['local']['username']} --password={$connect['local']['password']} --host={$connect['local']['host']} --database {$connect['local']['database']} < $sql");
             }
 
             if ($removeFileAfterImport === true) {
