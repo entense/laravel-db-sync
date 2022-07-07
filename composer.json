@@ -15,8 +15,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Dcblogdev\\DbSync\\": "src/",
-            "Dcblogdev\\DbSync\\Tests\\": "tests"
+            "Entense\\DbSync\\": "src/",
+            "Entense\\DbSync\\Tests\\": "tests"
         }
     },
     "autoload-dev": {
@@ -27,7 +27,7 @@
     "extra": {
         "laravel": {
             "providers": [
-              "Dcblogdev\\DbSync\\DbSyncServiceProvider"
+              "Entense\\DbSync\\DbSyncServiceProvider"
             ]
         }
     }
