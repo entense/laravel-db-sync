@@ -47,7 +47,7 @@ class DbSyncCommand extends Command
         $importSqlFile         = config('dbsync.importSqlFile');
         $removeFileAfterImport = config('dbsync.removeFileAfterImport');
 
-        if (empty($host) || empty($username) || empty($database)) {
+        if (empty($connect['sync']['host']) || empty($connect['sync']['username']) || empty($connect['sync']['password'])) {
             $this->error("DB credentials not set, have you published the config and set ENV variables?");
             return true;
         }
